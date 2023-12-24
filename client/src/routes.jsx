@@ -9,62 +9,62 @@ import { userRoute } from "./pages/User"
 import { userListRoute } from "./pages/UserList"
 
 export const routes = [
-    {
-        path: "/",
-        element: <RootLayout />,
-        errorElement: import.meta.env.MODE === "test" ? <ErrorPage /> : undefined,
+  {
+    path: "/",
+    element: <RootLayout />,
+    errorElement: import.meta.env.MODE === "test" ? <ErrorPage /> : undefined,
+    children: [
+      {
+        errorElement: <ErrorPage />,
         children: [
-            {
-                errorElement: <ErrorPage />,
+          { index: true, element: <Navigate to="/posts" /> },
+          {
+            path: "posts",
+            children: [
+              {
+                index: true,
+                ...postListRoute,
+              },
+              {
+                path: ":postId",
                 children: [
-                    { index: true, element: <Navigate to="/posts" /> },
-                    {
-                        path: "posts",
-                        children: [
-                            {
-                                index: true,
-                                ...postListRoute,
-                            },
-                            {
-                                path: ":postId",
-                                children: [
-                                    { index: true, ...postRoute },
-                                    { path: "edit", ...editPostRoute },
-                                ],
-                            },
-                            { path: "new", ...newPostRoute },
-                        ],
-                    },
-                    {
-                        path: "users",
-                        children: [
-                            { index: true, ...userListRoute },
-                            { path: ":userId", ...userRoute },
-                        ],
-                    },
-                    { path: "todos", ...todoListRoute },
-                    { path: "*", element: <h1>404 - Page Not Found</h1> },
+                  { index: true, ...postRoute },
+                  { path: "edit", ...editPostRoute },
                 ],
-            },
+              },
+              { path: "new", ...newPostRoute },
+            ],
+          },
+          {
+            path: "users",
+            children: [
+              { index: true, ...userListRoute },
+              { path: ":userId", ...userRoute },
+            ],
+          },
+          { path: "todos", ...todoListRoute },
+          { path: "*", element: <h1>404 - Page Not Found</h1> },
         ],
-    },
+      },
+    ],
+  },
 ]
 
 function ErrorPage() {
-    const error = useRouteError()
-    if (import.meta.env.MODE === "test") {
-        throw error
-    }
+  const error = useRouteError()
+  if (import.meta.env.MODE === "test") {
+    throw error
+  }
 
-    return (
+  return (
+    <>
+      <h1>Error - Something went wrong</h1>
+      {import.meta.env.MODE !== "production" && (
         <>
-            <h1>Error - Something went wrong</h1>
-            {import.meta.env.MODE !== "production" && (
-                <>
-                    <pre>{error.message}</pre>
-                    <pre>{error.stack}</pre>
-                </>
-            )}
+          <pre>{error.message}</pre>
+          <pre>{error.stack}</pre>
         </>
-    )
+      )}
+    </>
+  )
 }

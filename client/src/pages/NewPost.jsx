@@ -1,4 +1,5 @@
 import {
+  defer,
   redirect,
   useActionData,
   useLoaderData,
@@ -9,7 +10,7 @@ import { getUsers } from "../api/users"
 import { PostForm, postFormValidator } from "../components/PostForm"
 
 function NewPost() {
-  const users = useLoaderData()
+  const { usersPromise } = useLoaderData()
   const { state } = useNavigation()
   const errors = useActionData()
   const isSubmitting = state === "submitting"
@@ -17,7 +18,11 @@ function NewPost() {
   return (
     <>
       <h1 className="page-title">New Post</h1>
-      <PostForm users={users} isSubmitting={isSubmitting} errors={errors} />
+      <PostForm
+        usersPromise={usersPromise}
+        isSubmitting={isSubmitting}
+        errors={errors}
+      />
     </>
   )
 }
@@ -43,7 +48,7 @@ async function action({ request }) {
 }
 
 function loader({ request: { signal } }) {
-  return getUsers({ signal })
+  return defer({ usersPromise: getUsers({ signal }) })
 }
 
 export const newPostRoute = {

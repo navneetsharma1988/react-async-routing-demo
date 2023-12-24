@@ -3,13 +3,14 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
+  defer,
 } from "react-router"
 import { getPost, updatePost } from "../api/posts"
 import { getUsers } from "../api/users"
 import { PostForm, postFormValidator } from "../components/PostForm"
 
 function EditPost() {
-  const { users, post } = useLoaderData()
+  const { usersPromise, postPromise } = useLoaderData()
   const { state } = useNavigation()
   const errors = useActionData()
   const isSubmitting = state === "submitting"
@@ -18,10 +19,10 @@ function EditPost() {
     <>
       <h1 className="page-title">Edit Post</h1>
       <PostForm
-        users={users}
+        usersPromise={usersPromise}
         isSubmitting={isSubmitting}
         errors={errors}
-        defaultValues={post}
+        defaultValuesPromise={postPromise}
       />
     </>
   )
@@ -31,7 +32,7 @@ async function loader({ request: { signal }, params: { postId } }) {
   const post = getPost(postId, { signal })
   const users = getUsers({ signal })
 
-  return { post: await post, users: await users }
+  return defer({ postPromise: post, usersPromise: users })
 }
 
 async function action({ request, params: { postId } }) {

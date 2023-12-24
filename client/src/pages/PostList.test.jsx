@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { screen } from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import { renderRoute } from "../../test-setup/renderRoute"
 import { addMockApiRouteHandler } from "../../test-setup/mockServer"
 import { HttpResponse } from "msw"
@@ -59,6 +59,9 @@ describe("PostList page", () => {
     await user.type(queryInput, "first")
     await user.click(filterBtn)
 
+    await waitFor(() =>
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+    )
     expect(screen.getByText("first post")).toBeInTheDocument()
     expect(screen.queryByText("second post")).not.toBeInTheDocument()
     expect(queryInput).toHaveValue("first")
@@ -68,6 +71,9 @@ describe("PostList page", () => {
     await user.clear(queryInput)
     await user.click(filterBtn)
 
+    await waitFor(() =>
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+    )
     expect(screen.queryByText("first post")).not.toBeInTheDocument()
     expect(screen.getByText("second post")).toBeInTheDocument()
     expect(userInput).toHaveValue("2")

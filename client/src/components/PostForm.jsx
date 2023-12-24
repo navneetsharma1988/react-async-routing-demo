@@ -1,43 +1,81 @@
-import { Form, Link } from "react-router-dom"
+import { Await, Form, Link } from "react-router-dom"
 import { FormGroup } from "./FormGroup"
+import { Suspense } from "react"
+import { SkeletonInput } from "./Skeleton"
+
+const DEFAULT_VALUE_PROMISE = Promise.resolve({})
 
 export function PostForm({
-  users,
+  usersPromise,
   isSubmitting,
   errors = {},
-  defaultValues = {},
+  defaultValuesPromise = DEFAULT_VALUE_PROMISE,
 }) {
   return (
     <Form method="post" className="form">
       <div className="form-row">
         <FormGroup errorMessage={errors.title}>
           <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            name="title"
-            id="title"
-            defaultValue={defaultValues.title}
-          />
+          <Suspense fallback={<SkeletonInput />}>
+            <Await resolve={defaultValuesPromise}>
+              {defaultValues => (
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  defaultValue={defaultValues.title}
+                />
+              )}
+            </Await>
+          </Suspense>
         </FormGroup>
         <FormGroup errorMessage={errors.userId}>
           <label htmlFor="userId">Author</label>
-          <select name="userId" id="userId" defaultValue={defaultValues.userId}>
-            {users.map(user => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
+          <Suspense fallback={<SkeletonInput />}>
+            <Await resolve={defaultValuesPromise}>
+              {defaultValues => (
+                <Suspense
+                  fallback={
+                    <select name="userId" id="userId" disabled>
+                      <option value="">Loading...</option>
+                    </select>
+                  }
+                >
+                  <Await resolve={usersPromise}>
+                    {users => (
+                      <select
+                        name="userId"
+                        id="userId"
+                        defaultValue={defaultValues.userId}
+                      >
+                        {users.map(user => (
+                          <option key={user.id} value={user.id}>
+                            {user.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </Await>
+                </Suspense>
+              )}
+            </Await>
+          </Suspense>
         </FormGroup>
       </div>
       <div className="form-row">
         <FormGroup errorMessage={errors.body}>
           <label htmlFor="body">Body</label>
-          <textarea
-            name="body"
-            id="body"
-            defaultValue={defaultValues.body}
-          ></textarea>
+          <Suspense fallback={<SkeletonInput />}>
+            <Await resolve={defaultValuesPromise}>
+              {defaultValues => (
+                <textarea
+                  name="body"
+                  id="body"
+                  defaultValue={defaultValues.body}
+                ></textarea>
+              )}
+            </Await>
+          </Suspense>
         </FormGroup>
       </div>
       <div className="form-row form-btn-row">
